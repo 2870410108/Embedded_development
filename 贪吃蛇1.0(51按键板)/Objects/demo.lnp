@@ -1,0 +1,9 @@
+".\Objects\main.obj",
+".\Objects\I2C.obj",
+".\Objects\Delay_ms.obj",
+".\Objects\snak_game.obj",
+".\Objects\OLED12864.obj",
+".\Objects\init_timer.obj" 
+TO ".\Objects\demo" 
+PRINT(".\Listings\demo.m51") RAMSIZE(256) 
+DISABLEWARNING (16,15) 

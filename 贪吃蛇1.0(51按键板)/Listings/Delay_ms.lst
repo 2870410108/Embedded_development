@@ -1,0 +1,40 @@
+C51 COMPILER V9.56.0.0   DELAY_MS                                                          07/04/2024 20:22:23 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE DELAY_MS
+OBJECT MODULE PLACED IN .\Objects\Delay_ms.obj
+COMPILER INVOKED BY: C:\dev\keil\C51\BIN\C51.EXE tools\Delay_ms.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Li
+                    -stings\Delay_ms.lst) TABS(2) OBJECT(.\Objects\Delay_ms.obj)
+
+line level    source
+
+   1          #include <INTRINS.H>
+   2          
+   3          void delay_ms(unsigned int ms) {
+   4   1          unsigned int i, j;
+   5   1          for (i = 0; i < ms; i++) {
+   6   2              for (j = 0; j < 123; j++) { // 大约1ms的延时
+   7   3                  _nop_();
+   8   3              }
+   9   2          }
+  10   1      }
+  11          void delay_us(unsigned int us) {
+  12   1          unsigned int i;
+  13   1          for (i = 0; i < us; i++) {
+  14   2                  _nop_();
+  15   2          }
+  16   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     52    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

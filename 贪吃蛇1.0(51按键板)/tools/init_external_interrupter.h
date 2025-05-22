@@ -1,0 +1,6 @@
+#ifndef __Init_External_Interrupter_H__
+#define __Init_External_Interrupter_H__
+
+void init_external_interrupter(bit select_external_0_OR_external_1);
+
+#endif

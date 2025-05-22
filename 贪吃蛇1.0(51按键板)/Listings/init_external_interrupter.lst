@@ -1,0 +1,36 @@
+C51 COMPILER V9.56.0.0   INIT_EXTERNAL_INTERRUPTER                                         07/02/2024 21:53:08 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE INIT_EXTERNAL_INTERRUPTER
+OBJECT MODULE PLACED IN .\Objects\init_external_interrupter.obj
+COMPILER INVOKED BY: C:\dev\keil\C51\BIN\C51.EXE tools\init_external_interrupter.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECT
+                    -EXTEND PRINT(.\Listings\init_external_interrupter.lst) TABS(2) OBJECT(.\Objects\init_external_interrupter.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          
+   3          void init_external_interrupter(bit select_external_0_OR_external_1){
+   4   1        if(select_external_0_OR_external_1==0){
+   5   2          IT0=1;//选择沿触发方式
+   6   2          EX0=1;//开启外部中断0
+   7   2        }else{
+   8   2          IT1=1;//选择沿触发方式
+   9   2          EX1=1;//开启外部中断1
+  10   2        }
+  11   1        EA=1;
+  12   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     16    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

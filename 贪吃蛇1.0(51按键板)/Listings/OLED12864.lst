@@ -1,0 +1,193 @@
+C51 COMPILER V9.56.0.0   OLED12864                                                         07/04/2024 20:22:23 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE OLED12864
+OBJECT MODULE PLACED IN .\Objects\OLED12864.obj
+COMPILER INVOKED BY: C:\dev\keil\C51\BIN\C51.EXE tools\OLED12864.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\L
+                    -istings\OLED12864.lst) TABS(2) OBJECT(.\Objects\OLED12864.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include <stdio.h>
+   3          #include "tools/I2C.H"
+   4          #include "tools/OLED_DISPLAY_DATA.H"
+   5          #define uchar unsigned char
+   6          //#define uint  unsigned int  
+   7          
+   8          void OLED_WriteCommand(uchar Command)
+   9          { 
+  10   1        start ();
+  11   1        send_byte(0x78);//从机地址
+  12   1        accept_response();
+  13   1        send_byte(0x00);//写命令
+  14   1        accept_response();
+  15   1        send_byte(Command);
+  16   1        accept_response();
+  17   1        stop ();
+  18   1      }
+  19           
+  20          
+  21          void OLED_WriteData(uchar Data)
+  22          {
+  23   1        
+  24   1        start ();
+  25   1        send_byte(0x78);//从机地址
+  26   1        accept_response();
+  27   1        send_byte(0x40);//写命令
+  28   1        accept_response();
+  29   1        send_byte(Data);
+  30   1        accept_response();
+  31   1        stop ();
+  32   1      }
+  33           
+  34          //该函数Y的范围0—7，X的范围0-127
+  35          void OLED_SetCursor(uchar Y, uchar X)
+  36          {
+  37   1        OLED_WriteCommand(0xB0 | Y);          //设置Y位置
+  38   1        OLED_WriteCommand(0x10 | ((X & 0xF0) >> 4));  //设置X位置高4位
+  39   1        OLED_WriteCommand(0x00 | (X & 0x0F));     //设置X位置低4位
+  40   1      }
+  41           
+  42          
+  43          void OLED_Clear(void)
+  44          {  
+  45   1        uchar i, j;
+  46   1        for (j = 0; j < 8; j++)
+  47   1        {
+  48   2          OLED_SetCursor(j, 0);
+  49   2          for(i = 0; i < 128; i++)
+  50   2          {
+  51   3            OLED_WriteData(0x00);
+  52   3          }
+  53   2        }
+  54   1      }
+C51 COMPILER V9.56.0.0   OLED12864                                                         07/04/2024 20:22:23 PAGE 2   
+
+  55           
+  56          
+  57           
+  58          
+  59          void OLED_Init(void)
+  60          {
+  61   1        uchar i, j;
+  62   1        for (i = 0; i < 100; i++)     //上电延时
+  63   1          for (j = 0; j < 100; j++);
+  64   1        
+  65   1        
+  66   1        OLED_WriteCommand(0xAE);  //关闭显示
+  67   1        
+  68   1        OLED_WriteCommand(0xD5);  //设置显示时钟分频比/振荡器频率
+  69   1        OLED_WriteCommand(0x80);
+  70   1        
+  71   1        OLED_WriteCommand(0xA8);  //设置多路复用率
+  72   1        OLED_WriteCommand(0x3F);
+  73   1        
+  74   1        OLED_WriteCommand(0xD3);  //设置显示偏移
+  75   1        OLED_WriteCommand(0x00);
+  76   1        
+  77   1        OLED_WriteCommand(0x40);  //设置显示开始行
+  78   1        
+  79   1        OLED_WriteCommand(0xA1);  //设置左右方向，0xA1正常 0xA0左右反置
+  80   1        
+  81   1        OLED_WriteCommand(0xC8);  //设置上下方向，0xC8正常 0xC0上下反置
+  82   1       
+  83   1        OLED_WriteCommand(0xDA);  //设置COM引脚硬件配置
+  84   1        OLED_WriteCommand(0x12);
+  85   1        
+  86   1        OLED_WriteCommand(0x81);  //设置对比度控制
+  87   1        OLED_WriteCommand(0xCF);
+  88   1       
+  89   1        OLED_WriteCommand(0xD9);  //设置预充电周期
+  90   1        OLED_WriteCommand(0xF1);
+  91   1       
+  92   1        OLED_WriteCommand(0xDB);  //设置VCOMH取消选择级别
+  93   1        OLED_WriteCommand(0x30);
+  94   1       
+  95   1        OLED_WriteCommand(0xA4);  //设置整个显示打开/关闭
+  96   1       
+  97   1        OLED_WriteCommand(0xA6);  //设置正常/倒转显示
+  98   1       
+  99   1        OLED_WriteCommand(0x8D);  //设置充电泵
+ 100   1        OLED_WriteCommand(0x14);
+ 101   1       
+ 102   1        OLED_WriteCommand(0xAF);  //开启显示
+ 103   1          
+ 104   1        OLED_Clear();       //OLED清屏
+ 105   1      }
+ 106          void OLED_showChar(uchar Y, uchar X,uchar C,bit dis_pattern){
+ 107   1        uchar c,i;
+ 108   1        c = C-' ';
+ 109   1        OLED_SetCursor(Y,X);
+ 110   1        if(dis_pattern){
+ 111   2          for(i=0;i<8;i++)
+ 112   2            OLED_WriteData(F8X16[c][i]);
+ 113   2          OLED_SetCursor(Y+1,X);
+ 114   2          for(i=0;i<8;i++)
+ 115   2            OLED_WriteData(F8X16[c][i+8]);
+ 116   2        }else{
+C51 COMPILER V9.56.0.0   OLED12864                                                         07/04/2024 20:22:23 PAGE 3   
+
+ 117   2          for(i=0;i<6;i++)
+ 118   2            OLED_WriteData(F6x8[c][i]);
+ 119   2        }
+ 120   1      }
+ 121          
+ 122          void OLED_showString(uchar y, uchar x,uchar * str,bit dis_pattern){
+ 123   1        uchar j=0;
+ 124   1        while (str[j]!='\0') {
+ 125   2          OLED_showChar(y,x,str[j],dis_pattern);
+ 126   2          x+=8;
+ 127   2          if (x>120) {
+ 128   3             x = 0;
+ 129   3             y+=2;
+ 130   3          }
+ 131   2          j++;
+ 132   2        }
+ 133   1      }
+ 134          /*void show_number(uchar y, uchar x,float unmber,bit is_float,bit dis_pattern){
+ 135            uchar str_num[5],i,j=0;
+ 136            if(is_float)
+ 137              sprintf( str_num, "%0.3f" ,unmber);
+ 138            else
+ 139              sprintf( str_num, "%d" ,(int)unmber);
+ 140            while (str_num[j]!='\0') {
+ 141              OLED_showChar(y,x,str_num[j],dis_pattern);
+ 142              x+=8;
+ 143              if (x>120) {
+ 144                 x = 0;
+ 145                 y+=2;
+ 146              }
+ 147              j++;
+ 148            }
+ 149          }*/
+ 150          void OLED_showImage(uchar y, uchar x,uchar width ,uchar height, uchar * image){
+ 151   1        uchar i,j;
+ 152   1        for(j=0;j<height/8;j++){
+ 153   2        OLED_SetCursor(y+j,x);
+ 154   2          for(i=0;i<width;i++)
+ 155   2            OLED_WriteData(image[j*width+i]);
+ 156   2        }
+ 157   1      }
+ 158          void OLED_showImage_64X64(){
+ 159   1        OLED_showImage(0,0,64 ,64,image2_64X64);
+ 160   1        
+ 161   1      }
+ 162          void OLED_showImage_128X64(){
+ 163   1        OLED_showImage(0,0,128 ,64,image1_128X64);
+ 164   1        
+ 165   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    575    ----
+   CONSTANT SIZE    =   3608    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      24
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

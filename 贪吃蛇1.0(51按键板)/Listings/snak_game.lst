@@ -1,0 +1,218 @@
+C51 COMPILER V9.56.0.0   SNAK_GAME                                                         07/04/2024 20:22:23 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE SNAK_GAME
+OBJECT MODULE PLACED IN .\Objects\snak_game.obj
+COMPILER INVOKED BY: C:\dev\keil\C51\BIN\C51.EXE snak_game.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listing
+                    -s\snak_game.lst) TABS(2) OBJECT(.\Objects\snak_game.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include "tools/oled12864.h"
+   3          #include "tools/delay_ms.h"
+   4          #include "tools/init_timer.h"
+   5          #define u8 unsigned char
+   6          #define u32 unsigned int
+   7          
+   8          
+   9          //按键定义
+  10          sbit  up   =P1^2;
+  11          sbit  down =P1^4;
+  12          sbit  left =P1^5;
+  13          sbit  right=P1^3;
+  14          //打印蛇一个节点所需要的像素点8*8
+  15          const u8 code food[8]={0xFF,0xFF,0xC3,0xC3,0xC3,0xC3,0xFF,0xFF};
+  16          const u8 code blank[8]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+  17          const u8 code body[8]={0x00,0x7E,0x7E,0x7E,0x7E,0x7E,0x7E,0x00};
+  18          //用于储存蛇节点的位置
+  19          u8 snake_x[30],snake_y[30];
+  20          //食物的坐标位置
+  21          u8 food_x,food_y;
+  22          //蛇的长度
+  23          u8 snake_lenght;
+  24          //蛇的方向
+  25          u8 dir;
+  26          //定时器重装初始值;
+  27          u32 num;
+  28          //定时器计数
+  29          u8 count;
+  30          //游戏分数
+  31          u8 score;
+  32          //打印蛇
+  33          void print_OLED_SnakeBody()
+  34          {
+  35   1         u8 i;
+  36   1         for(i=0;i<snake_lenght;i++)
+  37   1         {
+  38   2            OLED_showImage(snake_y[i], snake_x[i]*8,8,8,body);
+  39   2         }
+  40   1       }
+  41          
+  42          //初始化游戏
+  43          void init_game()
+  44          {
+  45   1        
+  46   1        
+  47   1        dir=1;//初始化方向
+  48   1        snake_lenght=3;//初始化蛇的长度
+  49   1        food_x=6;food_y=6;//初始化食物
+  50   1        snake_x[0]=5,snake_y[0]=3;//初始化蛇头位置
+  51   1        snake_x[1]=4,snake_y[1]=3;//初始化第二节点
+  52   1        snake_x[2]=3,snake_y[2]=3;//初始化第三节点
+  53   1        OLED_Init();//初始化OLED
+  54   1        OLED_showImage_128X64();//欢迎界面
+C51 COMPILER V9.56.0.0   SNAK_GAME                                                         07/04/2024 20:22:23 PAGE 2   
+
+  55   1        delay_ms(1000);
+  56   1        OLED_Clear();//清屏
+  57   1        print_OLED_SnakeBody();//画出蛇身
+  58   1        OLED_showImage(food_y, food_x*8,8,8,food);//打印食物
+  59   1        num=init_timer(0,1,50000,12,1);//初始化定时器0，方式一
+  60   1      }
+  61          //按键检测
+  62          void key_check()
+  63          { 
+  64   1        if(!up||!down||!left||!right)
+  65   1          {
+  66   2            if(!up){
+  67   3              delay_ms(10);
+  68   3              if(!up)
+  69   3                while(!up);
+  70   3              if(dir!=2){//检测当前方向是否与预计修改的方向冲突
+  71   4                  dir=1;return;
+  72   4                }
+  73   3            }
+  74   2            if(!down){
+  75   3              delay_ms(10);
+  76   3              if(!down)
+  77   3                while(!down);
+  78   3                if(dir!=1){
+  79   4                  dir=2;return;
+  80   4                }
+  81   3            }
+  82   2            if(!left){
+  83   3              delay_ms(10);
+  84   3              if(!left)
+  85   3                while(!left);
+  86   3                if(dir!=4){
+  87   4                  dir=3;return;
+  88   4                }
+  89   3            }
+  90   2            if(!right){
+  91   3              delay_ms(20);
+  92   3              if(!right)
+  93   3                while(!right);
+  94   3                if(dir!=3){
+  95   4                  dir=4;return;
+  96   4                }
+  97   3            }
+  98   2          }
+  99   1      }
+ 100          //食物检测
+ 101          void Food_check()
+ 102          {
+ 103   1          if ((dir == 1 && snake_x[0] == food_x && snake_y[0] - 1 == food_y) ||
+ 104   1              (dir == 2 && snake_x[0] == food_x && snake_y[0] + 1 == food_y) ||
+ 105   1              (dir == 3 && snake_x[0] - 1 == food_x && snake_y[0] == food_y) ||
+ 106   1              (dir == 4 && snake_x[0] + 1 == food_x && snake_y[0] == food_y))
+ 107   1          {   
+ 108   2              // 清除食物
+ 109   2              OLED_showImage(food_y,food_x* 8, 8, 8, blank);
+ 110   2              food_x = rand() % 8;
+*** WARNING C206 IN LINE 110 OF snak_game.c: 'rand': missing function-prototype
+ 111   2              food_y = rand() % 16;
+ 112   2              snake_lenght++;
+ 113   2              score++;
+ 114   2            // 生成新食物
+ 115   2              OLED_showImage(food_y,food_x* 8, 8, 8, food);
+C51 COMPILER V9.56.0.0   SNAK_GAME                                                         07/04/2024 20:22:23 PAGE 3   
+
+ 116   2          }
+ 117   1      }
+ 118          //蛇的移动核心思路分析
+ 119          /*
+ 120          使用数组存储蛇的节点坐标，蛇头在数组第一个元素
+ 121          移动时只需要改变蛇头坐标即可，然后蛇尾每一节一次等于前一个蛇节点位置即�
+             -��
+ 122          还需要考虑此时蛇的方向，根据方向改变相应坐标
+ 123          加ru此刻在向上移动，那就需要更新Y坐标
+ 124          //4 5 6-->3 4 5   Y
+ 125          //5 5 5-->5 5 5   X
+ 126          */
+ 127          void move(){
+ 128   1          u8 i;
+ 129   1      
+ 130   1          // 清除蛇尾的前一个位置
+ 131   1          OLED_showImage(snake_y[snake_lenght-1], snake_x[snake_lenght-1] * 8, 8, 8, blank);
+ 132   1      
+ 133   1          // 更新蛇的每一节的位置
+ 134   1          for(i = snake_lenght - 1; i > 0; i--){
+ 135   2              snake_x[i] = snake_x[i - 1];
+ 136   2              snake_y[i] = snake_y[i - 1];
+ 137   2          }
+ 138   1      
+ 139   1          // 更新蛇头的位置
+ 140   1          switch(dir){
+ 141   2              case 1: snake_y[0]--; break;
+ 142   2              case 2: snake_y[0]++; break;
+ 143   2              case 3: snake_x[0]--; break;
+ 144   2              case 4: snake_x[0]++; break;
+ 145   2          }
+ 146   1      
+ 147   1          print_OLED_SnakeBody(); // 重新绘制整条蛇
+ 148   1      }
+ 149          //判断蛇是否死亡
+ 150          bit isDeath()
+ 151          {
+ 152   1          u8 i;
+ 153   1          if (snake_x[0] == -1 || snake_y[0] == -1 || snake_x[0] == 16 || snake_y[0] == 8)
+ 154   1            // 蛇头在边界或墙壁上
+ 155   1              return 1;
+ 156   1          for (i = 1; i < snake_lenght; ++i)
+ 157   1              if (snake_x[0] == snake_x[i] && snake_y[0] == snake_y[i])
+ 158   1                // 蛇头与身体重合
+ 159   1                  return 1;
+ 160   1          return 0;
+ 161   1      }
+ 162          void MainLoop() {
+ 163   1          key_check();
+ 164   1          if (count >= 10) {
+ 165   2              count = 0;
+ 166   2              if (isDeath()) {
+ 167   3                  
+ 168   3                OLED_Clear();//清屏
+ 169   3                OLED_showString(0, 13,"GAME OVER !!!",1);
+ 170   3                OLED_showString(2, 13,"SCORE --> ",1);
+ 171   3                OLED_showString(2, 13,"SCORE --> ",1);
+ 172   3              } else {
+ 173   3                  Food_check();
+ 174   3                  move();
+ 175   3              }
+ 176   2          }
+C51 COMPILER V9.56.0.0   SNAK_GAME                                                         07/04/2024 20:22:23 PAGE 4   
+
+ 177   1      }
+ 178          void T0_interrupt () interrupt 1{
+ 179   1        TH0=num/256;
+ 180   1        TL0=num%256;
+ 181   1        if(count>=10)
+ 182   1          count=0;
+ 183   1        count++;
+ 184   1      }
+ 185          
+ 186          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    702    ----
+   CONSTANT SIZE    =     49    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     68       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)
